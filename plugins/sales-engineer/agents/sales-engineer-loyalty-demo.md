@@ -171,8 +171,27 @@ After printing the full proposal, ask explicitly:
 > **"Cette proposition te convient ? Réponds Valider / Modifier / Refaire."**
 
 - **Valider** → proceed to Phase 3
-- **Modifier** → apply requested changes, reprint updated proposal, ask again
+- **Modifier** → show a **MODIFICATION PREVIEW** (see format below), wait for confirmation, then reprint the updated full proposal and ask again
 - **Refaire** → restart proposal from scratch
+
+**MODIFICATION PREVIEW format** — mandatory before applying any change:
+
+```
+## MODIFICATION PREVIEW
+
+Requested change: {what the user asked}
+
+What changes:
+  + ADD: {element added} — {brief description}
+  ~ MODIFY: {element changed}: "{before}" → "{after}"
+  - REMOVE: {element removed}
+
+What stays the same: everything else
+
+Confirm this change? (yes / adjust)
+```
+
+Wait for explicit confirmation before applying. Only then reprint the updated proposal sections and ask "Valider / Modifier / Refaire" again.
 
 **Step 4 — User Validation**: **Do NOT proceed to Phase 3 until the user explicitly says "Valider" or equivalent.**
 
