@@ -1,0 +1,21 @@
+{
+  "name": "sales-engineer",
+  "owner": {
+    "name": "Antoine Leon",
+    "email": "antoine.leon@brevo.com"
+  },
+  "metadata": {
+    "description": "Sales Engineer plugin for Brevo demos — CRM and Loyalty demo builders",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "sales-engineer",
+      "description": "Prepare custom Brevo demos for prospects by generating realistic data (contacts, products, orders, events, loyalty programs) via the Brevo API",
+      "version": "1.0.0",
+      "source": "./plugins/sales-engineer",
+      "category": "sales",
+      "tags": ["sales", "demo", "prospect", "brevo-api", "loyalty"]
+    }
+  ]
+}
