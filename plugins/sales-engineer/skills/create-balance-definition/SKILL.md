@@ -8,6 +8,8 @@ tools: Bash, Read, Write
 
 Create a balance definition (points/currency) for an existing loyalty program.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `program.id`, `balanceDefinitions` (planned) | **Write**: `balanceDefinitions` (with `id`)

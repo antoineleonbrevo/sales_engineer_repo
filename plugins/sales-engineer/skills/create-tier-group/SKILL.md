@@ -8,6 +8,8 @@ tools: Bash, Read, Write
 
 Create a tier group, then add individual tiers one by one, each linked to a balance definition.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `program.id`, `balanceDefinitions[0].id`, `tierGroups` (planned) | **Write**: `tierGroups` (with `id`, `tiers[].id`)

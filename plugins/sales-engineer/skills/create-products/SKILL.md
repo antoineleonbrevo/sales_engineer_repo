@@ -8,6 +8,8 @@ tools: Bash, Read, Write, WebSearch
 
 Create products with verified image URLs.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `plan.products`, `created.categories`, `research.image_keywords`, `meta.volumes.products` | **Write**: `created.products`

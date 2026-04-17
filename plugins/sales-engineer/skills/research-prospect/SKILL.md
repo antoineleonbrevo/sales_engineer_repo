@@ -8,6 +8,8 @@ tools: WebSearch, WebFetch, Read, Write
 
 Research prospect company to build a demo profile.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `meta.prospect_name` | **Write**: `research` (all fields)

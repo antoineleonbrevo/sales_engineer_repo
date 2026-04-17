@@ -8,6 +8,8 @@ tools: Bash, Read, Write
 
 Create events: max 5 types, 2 mandatory, each attached to min 20 contacts.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `plan.events`, `plan.event_funnels`, `created.contacts`, `created.products`, `research` | **Write**: `created.events`

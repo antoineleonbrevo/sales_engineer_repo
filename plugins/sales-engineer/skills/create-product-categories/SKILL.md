@@ -8,6 +8,8 @@ tools: Bash, Read, Write
 
 Activate ecommerce app, batch-create categories.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `plan.categories`, `meta.volumes.categories` | **Write**: `created.categories`

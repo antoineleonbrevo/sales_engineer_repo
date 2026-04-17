@@ -8,6 +8,8 @@ tools: Bash, Read, Write
 
 Create contacts, add to demo list, retrieve Brevo internal IDs.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `plan.contacts`, `created.attributes`, `meta.volumes.contacts` | **Write**: `created.contact_list`, `created.contacts` (with `brevo_id`)

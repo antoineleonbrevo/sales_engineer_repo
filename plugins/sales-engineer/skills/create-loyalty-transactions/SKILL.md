@@ -8,6 +8,7 @@ tools: Bash, Read, Write
 
 Create sample transactions to populate a loyalty demo with realistic point balances and tier distribution.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
 > **Reference**: See `REFERENCE.md` for full API parameter tables, response schemas, and error codes.
 
 ## Transaction Lifecycle

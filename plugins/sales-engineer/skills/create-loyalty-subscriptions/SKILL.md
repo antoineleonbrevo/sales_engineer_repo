@@ -8,6 +8,8 @@ tools: Bash, Read, Write
 
 Subscribe contacts to an active loyalty program.
 
+> **Language**: Communicate with the user in the same language they use — French or English.
+
 ## Demo Context
 
 - **Read**: `program.id`, `contacts` (with `contactId`) | **Write**: `contacts` (with subscription status, `loyaltySubscriptionId`)
