@@ -18,32 +18,63 @@ Guide user through object schema creation, then upsert records.
 
 ### Step A — Present object schemas for manual creation
 
-For each planned custom object, present the schema using the following format:
+Present each object as a complete step-by-step guide. Use the format below — one block per object, in dependency order (independent objects first).
 
 ```
-╔══════════════════════════════════════════╗
+╔══════════════════════════════════════════════════════════╗
   OBJET À CRÉER : {object_name}
-╚══════════════════════════════════════════╝
+  Chemin : Settings → Data Model → Custom Objects → + Create
+╚══════════════════════════════════════════════════════════╝
 
-| Attribut      | Type   | Notes                                        |
-|---------------|--------|----------------------------------------------|
-| {obj}_id ★ ID | text   | Identifiant objet + ajouter en attribut visible |
-| {attr_1}      | {type} | {desc}                                       |
-| {attr_2}      | {type} | {desc}                                       |
+① Nom de l'objet : {object_name}
 
-Association : Contact
-Chemin : Settings → Data Model → Custom Objects → Create
+② Identifiant (Object ID) : {obj}_id
+   → C'est le slug utilisé dans tous les appels API — choisis-le avec soin.
+   → Ajoute aussi {obj}_id comme attribut classique (pour l'affichage dans l'UI Brevo).
+
+③ Attributs à créer :
+
+| #  | Attribute name   | Attribute type | Required | Notes / Valeurs possibles         |
+|----|------------------|---------------|----------|-----------------------------------|
+| 1  | {obj}_id         | Text          | OUI ★ ID | Aussi Object ID — ex: "{OBJ}-001" |
+| 2  | {attr_1}         | {Type}        | {Oui/Non}| {description — valeurs possibles} |
+| 3  | {attr_2}         | {Type}        | {Oui/Non}| {description — valeurs possibles} |
+| …  | …                | …             | …        | …                                 |
+
+   Types disponibles dans Brevo UI :
+   Text · Number · Boolean · Date · URL
+
+④ Associations :
+   → Contact (obligatoire pour lier les records aux contacts Brevo)
+   → {other_object} (si dépendance inter-objets)
+
+⑤ Ordre de création : {object_name} avant {dependent_object} si applicable
+   (l'objet dépendant nécessite que l'objet parent existe pour l'association)
 ```
 
-**ID attribute rule**: Every object MUST have a `{object_name_singular}_id` attribute that serves as both the **object identifier** (for deduplication) and a **regular visible attribute** (for Brevo UI display). Mark it with `★ ID` in the table.
+**ID attribute rule**: Every object MUST have a `{obj}_id` attribute set as both the **Object ID** (identifier/deduplication key) AND added as a **regular attribute** (for UI visibility). Mark it `OUI ★ ID` in the table.
+
+**Type mapping reference**:
+
+| Brevo UI label | Use for |
+|----------------|---------|
+| Text | Names, codes, statuses, free text |
+| Number | Integers and decimals (kWh, prices, counts) |
+| Boolean | true/false flags |
+| Date | Timestamps, registration dates, expiry dates |
+| URL | Links |
 
 ### Step B — Wait for user confirmation + slug
 
-Ask: *"Please create these custom objects in Brevo following the schemas above. Once done, confirm and tell me the exact identifier name you used for each object (e.g., `station_id`, `vehicle_id`). This is the API slug used in all subsequent calls."*
+After presenting all schemas, ask:
+
+> *"Crée ces objets dans Brevo en suivant les schémas ci-dessus (Settings → Data Model → Custom Objects → + Create). Une fois terminé, confirme-moi en indiquant le nom exact de l'identifiant que tu as utilisé pour chaque objet — c'est ce slug qui sera utilisé dans les appels API."*
+>
+> *Exemple : "J'ai créé charging_stations avec l'identifiant station_id et vehicles avec vehicle_id."*
 
 **This is the ONLY pause during Phase 2.** Required because object schemas cannot be created via API.
 
-> **Critical**: The API slug (`{type}` in `POST /v3/objects/{type}/batch/upsert`) is the **identifier name** chosen at object creation — NOT the object display name. For example, if you named the identifier `station_id`, the URL must use `station_id` as the type. Always confirm the slug with the user before upserting.
+> **Critical**: The API slug (`{type}` in `POST /v3/objects/{type}/batch/upsert`) is the **identifier name** chosen at object creation — NOT the object display name. For example, if you named the identifier `station_id`, the URL must use `station_id` as the type. Never assume — always confirm with the user.
 
 ### Step C — Upsert records
 
