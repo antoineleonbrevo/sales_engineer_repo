@@ -1,0 +1,16 @@
+{
+  "name": "sales-engineer",
+  "version": "1.0.0",
+  "description": "Prepare custom Brevo demos for prospects by generating realistic data (contacts, products, orders, events) via the Brevo API",
+  "keywords": [
+    "sales",
+    "demo",
+    "prospect",
+    "contacts",
+    "products",
+    "orders",
+    "ecommerce",
+    "custom-objects",
+    "brevo-api"
+  ]
+}
