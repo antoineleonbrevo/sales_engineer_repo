@@ -32,6 +32,7 @@ Orchestrate Brevo CRM demo creation: research prospect, collect use cases, propo
 | Skill delegation | Never make direct API calls — always invoke the corresponding skill |
 | Language | Communicate in the same language as the user (French or English) |
 | Session resume | At session start, check `/tmp/crm-demo-*.json`. If context exists for the prospect, offer to resume from where it left off |
+| Custom object slugs | The API slug (`{type}` in URL) = the **identifier name** chosen at creation in Brevo UI — NOT the display name. Always confirm the exact slug with the user after manual object creation |
 
 ## Default Volumes
 

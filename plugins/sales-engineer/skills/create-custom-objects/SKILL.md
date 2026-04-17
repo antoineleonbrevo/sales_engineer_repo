@@ -37,11 +37,13 @@ Chemin : Settings → Data Model → Custom Objects → Create
 
 **ID attribute rule**: Every object MUST have a `{object_name_singular}_id` attribute that serves as both the **object identifier** (for deduplication) and a **regular visible attribute** (for Brevo UI display). Mark it with `★ ID` in the table.
 
-### Step B — Wait for user confirmation
+### Step B — Wait for user confirmation + slug
 
-Ask: *"Please create these custom objects in Brevo following the schemas above. Confirm when done and I will populate them with records."*
+Ask: *"Please create these custom objects in Brevo following the schemas above. Once done, confirm and tell me the exact identifier name you used for each object (e.g., `station_id`, `vehicle_id`). This is the API slug used in all subsequent calls."*
 
 **This is the ONLY pause during Phase 2.** Required because object schemas cannot be created via API.
+
+> **Critical**: The API slug (`{type}` in `POST /v3/objects/{type}/batch/upsert`) is the **identifier name** chosen at object creation — NOT the object display name. For example, if you named the identifier `station_id`, the URL must use `station_id` as the type. Always confirm the slug with the user before upserting.
 
 ### Step C — Upsert records
 
@@ -81,7 +83,7 @@ Each record uses `identifiers` to enable upsert (create or update):
 
 | Check | Rule |
 |-------|------|
-| `{type}` in URL | Must match the object name created in Brevo UI |
+| `{type}` in URL | Must match the **identifier name** chosen at object creation (e.g., `station_id` not `charging_stations`). Always confirm with user after manual creation |
 | `records` | **Required** array of record objects |
 | Batch limit | Max **1000 records** per request, max **1 MB** body size |
 | `attributes` per record | Max **500 attributes**. Undefined attributes silently ignored |

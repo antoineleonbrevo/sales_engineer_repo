@@ -60,7 +60,15 @@ bash /tmp/script.sh
 |------|--------|
 | `imageUrl` | Must be a public URL with a **visible file extension** (`.jpg`, `.png`). URLs with query params only (e.g., `?w=400&q=80`) are rejected: `"image format passed in the url is not valid"` |
 | `name` | Must include the file extension (e.g., `reward-welcome-bonus.jpg`). Without extension → `"image format passed in the name is not valid"` |
+| **Size limit** | **Brevo rejects images over 2MB.** Prefer Pexels URLs with `?w=400&h=400&fit=crop` for small file size. If upload fails, try a different image or append resize params |
 | Response | Returns a Brevo-hosted URL (`https://img.mailinblue.com/...`) — use this as `publicImage` on rewards and `imageRef` on tiers |
+
+### Image Upload Fallback Strategy
+
+If an upload fails (size, format, or timeout):
+1. **Try a smaller variant** — append `?w=400&h=400&fit=crop&auto=compress` to the Pexels URL and retry
+2. **If still failing** — search for an alternative image with similar keywords
+3. **If 2 retries fail** — create the reward without `publicImage` (field is optional), log the failure, and continue. Note it in the final summary so the user can add images manually in Brevo UI
 
 ### Image Selection Strategy
 
