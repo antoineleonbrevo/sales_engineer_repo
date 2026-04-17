@@ -8,7 +8,7 @@ tools: WebSearch, WebFetch, Read, Write
 
 Research prospect company to build a demo profile.
 
-> **Language**: Communicate with the user in the same language they use — French or English.
+> **Language**: Communicate with the user in the same language they use — French, English or German.
 
 ## Demo Context
 

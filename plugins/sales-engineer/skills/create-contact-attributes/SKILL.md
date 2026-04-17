@@ -8,7 +8,7 @@ tools: Bash, Read, Write
 
 Create new attributes, skip existing ones, respect account naming conventions. **Goal: ensure every attribute will be filled with data** for maximum demo impact.
 
-> **Language**: Communicate with the user in the same language they use — French or English.
+> **Language**: Communicate with the user in the same language they use — French, English or German.
 
 ## Demo Context
 

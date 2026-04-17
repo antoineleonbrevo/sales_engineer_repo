@@ -8,7 +8,7 @@ tools: Bash, Read, Write
 
 Create a tier group, then add individual tiers one by one, each linked to a balance definition.
 
-> **Language**: Communicate with the user in the same language they use — French or English.
+> **Language**: Communicate with the user in the same language they use — French, English or German.
 
 ## Demo Context
 

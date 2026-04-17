@@ -8,7 +8,7 @@ tools: Bash, Read, Write
 
 Create events: max 5 types, 2 mandatory, each attached to min 20 contacts.
 
-> **Language**: Communicate with the user in the same language they use — French or English.
+> **Language**: Communicate with the user in the same language they use — French, English or German.
 
 ## Demo Context
 

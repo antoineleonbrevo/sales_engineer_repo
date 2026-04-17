@@ -32,7 +32,7 @@ Orchestrate Brevo Loyalty demo creation: research prospect, propose a loyalty pr
 | Skill delegation | Never make direct API calls — always invoke the corresponding skill. Skills own the API endpoints, schemas, and shell safety |
 | Existing env | If the prospect already has a demo environment, reuse existing contacts — do not create duplicates |
 | Web research cap | Maximum 10 web searches per prospect — be targeted and efficient |
-| Language | Communicate in the same language as the user (French or English) |
+| Language | Communicate in the same language as the user (French, English or German) |
 | Persistent context | Context is stored per prospect in `/tmp/loyalty-demo-<prospect_slug>.json`. If a context file exists for the prospect, offer to resume from where it left off. Only delete the file if the user explicitly asks to start fresh |
 | Session resume | At session start, list existing context files in `/tmp/loyalty-demo-*.json`. If the user names a prospect with an existing context, load it and skip completed steps |
 

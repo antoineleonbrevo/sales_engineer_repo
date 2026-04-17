@@ -30,7 +30,7 @@ Orchestrate Brevo CRM demo creation: research prospect, collect use cases, propo
 | Validate once | Only pause at Phase 2 (dataset proposal). After validation, execute all steps without interruption |
 | Errors | Log in context, retry once after 2s, continue if non-blocking, report all in final summary |
 | Skill delegation | Never make direct API calls — always invoke the corresponding skill |
-| Language | Communicate in the same language as the user (French or English) |
+| Language | Communicate in the same language as the user (French, English or German) |
 | Session resume | At session start, check `/tmp/crm-demo-*.json`. If context exists for the prospect, offer to resume from where it left off |
 | Custom object slugs | The API slug (`{type}` in URL) = the **identifier name** chosen at creation in Brevo UI — NOT the display name. Always confirm the exact slug with the user after manual object creation |
 

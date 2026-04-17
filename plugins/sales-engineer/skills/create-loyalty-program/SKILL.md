@@ -8,7 +8,7 @@ tools: Bash, Read, Write
 
 Create a loyalty program via Brevo API, then publish it to activate.
 
-> **Language**: Communicate with the user in the same language they use — French or English.
+> **Language**: Communicate with the user in the same language they use — French, English or German.
 
 ## Demo Context
 

@@ -20,7 +20,7 @@ Guide user through object schema creation, then upsert records.
 
 Present each object as a complete step-by-step guide. Use the format below — one block per object, in dependency order (independent objects first).
 
-**Language rule**: Use the same language as the user (French or English) for all labels in the guide (step titles, column headers, notes, instructions).
+**Language rule**: Use the same language as the user (French, English or German) for all labels in the guide (step titles, column headers, notes, instructions).
 
 **French template:**
 ```
@@ -84,7 +84,38 @@ Present each object as a complete step-by-step guide. Use the format below — o
    (the dependent object requires the parent object to exist for the association)
 ```
 
-**ID attribute rule**: Every object MUST have a `{obj}_id` attribute set as both the **Object ID** (identifier/deduplication key) AND added as a **regular attribute** (for UI visibility). Mark it `OUI ★ ID` in the table.
+**German template:**
+```
+╔══════════════════════════════════════════════════════════╗
+  OBJEKT ERSTELLEN: {object_name}
+  Pfad: Settings → Data Model → Custom Objects → + Create
+╚══════════════════════════════════════════════════════════╝
+
+① Objektname: {object_name}
+
+② Bezeichner (Object ID): {obj}_id
+   → Dies ist der API-Slug für alle nachfolgenden API-Aufrufe — sorgfältig wählen.
+   → {obj}_id zusätzlich als reguläres Attribut hinzufügen (für die Anzeige in der Brevo UI).
+
+③ Zu erstellende Attribute:
+
+| #  | Attribute name   | Attribute type | Pflichtfeld | Hinweise / Mögliche Werte          |
+|----|------------------|---------------|-------------|------------------------------------|
+| 1  | {obj}_id         | Text          | JA ★ ID     | Auch Object ID — z.B. "{OBJ}-001"  |
+| 2  | {attr_1}         | {Type}        | {Ja/Nein}   | {Beschreibung — mögliche Werte}    |
+| …  | …                | …             | …           | …                                  |
+
+   Verfügbare Typen in der Brevo UI: Text · Number · Boolean · Date · URL
+
+④ Verknüpfungen (Associations):
+   → Contact (erforderlich, um Datensätze mit Brevo-Kontakten zu verknüpfen)
+   → {other_object} (falls abhängiges Objekt)
+
+⑤ Erstellungsreihenfolge: {object_name} vor {dependent_object} (falls zutreffend)
+   (das abhängige Objekt benötigt das übergeordnete Objekt für die Verknüpfung)
+```
+
+**ID attribute rule**: Every object MUST have a `{obj}_id` attribute set as both the **Object ID** (identifier/deduplication key) AND added as a **regular attribute** (for UI visibility). Mark it `OUI ★ ID` (FR) / `YES ★ ID` (EN) / `JA ★ ID` (DE) in the Required column.
 
 **Type mapping reference**:
 
@@ -109,6 +140,11 @@ After presenting all schemas, ask in the user's language:
 > *"Please create these objects in Brevo following the schemas above (Settings → Data Model → Custom Objects → + Create). Once done, confirm and tell me the exact identifier name you used for each object — that slug is what I'll use in all API calls."*
 >
 > *Example: "I created charging_stations with identifier station_id and vehicles with vehicle_id."*
+
+**German:**
+> *"Bitte erstelle diese Objekte in Brevo gemäß den obigen Schemata (Settings → Data Model → Custom Objects → + Create). Bestätige mir anschließend den genauen Bezeichner (Identifier), den du für jedes Objekt verwendet hast — dieser Slug wird in allen API-Aufrufen verwendet."*
+>
+> *Beispiel: „Ich habe charging_stations mit dem Bezeichner station_id und vehicles mit vehicle_id erstellt."*
 
 **This is the ONLY pause during Phase 2.** Required because object schemas cannot be created via API.
 

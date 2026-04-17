@@ -8,7 +8,7 @@ tools: Bash, Read, Write
 
 Subscribe contacts to an active loyalty program.
 
-> **Language**: Communicate with the user in the same language they use — French or English.
+> **Language**: Communicate with the user in the same language they use — French, English or German.
 
 ## Demo Context
 
