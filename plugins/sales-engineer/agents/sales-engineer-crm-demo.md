@@ -12,6 +12,7 @@ skills:
   - create-orders
   - create-events
   - create-custom-objects
+  - create-email-templates
 memory: user, project
 ---
 
@@ -227,6 +228,7 @@ Execute in order, delegating to skills:
 | 5 | `create-orders` | Link contacts to products, varied statuses |
 | 6 | `create-events` | Types adapted to selected use cases, min 20 contacts/type |
 | 7 | `create-custom-objects` | If applicable: Step A (schema → wait) → Step C (upsert records) |
+| 8 | `create-email-templates` | 3 branded templates (welcome, promo, re-engagement) using prospect colors and products. Requires `meta.prospect_website` in context (set by `research-prospect`). Includes user validation checkpoint before any API call. |
 
 After each step, update context file (`meta.current_phase`, `created.*`, `meta.updated_at`).
 

@@ -8,6 +8,7 @@ Companion reference for the `sales-engineer-crm-demo` agent. Contains the demo c
 {
   "meta": {
     "prospect_name": "",
+    "prospect_website": "",
     "created_at": "",
     "updated_at": "",
     "current_phase": "init",
@@ -35,7 +36,8 @@ Companion reference for the `sales-engineer-crm-demo` agent. Contains the demo c
   "created": {
     "attributes": [], "contact_list": { "name": "", "id": null },
     "contacts": [], "categories": [], "products": [],
-    "orders": [], "events": [], "custom_objects": []
+    "orders": [], "events": [], "custom_objects": [],
+    "email_templates": []
   },
   "errors": []
 }
@@ -47,7 +49,7 @@ After each skill: read context -> update section + `meta.updated_at` + `meta.cur
 
 ### Cross-skill dependencies
 
-`existing_attributes` -> `create-contact-attributes` | `created.contacts[].email` -> orders, events | `created.contacts[].brevo_id` -> custom objects | `created.categories[].id` -> products | `created.products[].id/.price` -> orders
+`existing_attributes` -> `create-contact-attributes` | `created.contacts[].email` -> orders, events | `created.contacts[].brevo_id` -> custom objects | `created.categories[].id` -> products | `created.products[].id/.price` -> orders | `meta.prospect_website` + `created.products` -> `create-email-templates`
 
 ## Dataset Proposal Template
 

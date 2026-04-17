@@ -12,7 +12,7 @@ Research prospect company to build a demo profile.
 
 ## Demo Context
 
-- **Read**: `meta.prospect_name` | **Write**: `research` (all fields)
+- **Read**: `meta.prospect_name` | **Write**: `research` (all fields), `meta.prospect_website`
 
 ## Disambiguation (before searching)
 
@@ -43,7 +43,9 @@ Stop early if all post-conditions are met before 10 searches. Use `WebFetch` onl
 2. If name is ambiguous, ask for URL before searching (see Disambiguation above)
 3. Run targeted searches (max 10, see strategy above)
 3. Extract: industry, business model (B2B/B2C), products/services with prices, target audience personas, company size, markets
-5. Update `demo-context.json → research`:
+5. Update `demo-context.json`:
+   - `meta.prospect_website` — canonical URL of the prospect's official website (e.g. `"https://www.zest.uk.com"`). Required by `create-email-templates` for brand color extraction. Set as soon as the URL is confirmed (step 2 or first successful WebFetch).
+   - `research` — full research block:
    ```json
    { "industry": "", "business_model": "", "company_size": "", "markets": [],
      "products_services": [{"name": "", "description": "", "price_range": ""}],
@@ -58,4 +60,5 @@ Stop early if all post-conditions are met before 10 searches. Use `WebFetch` onl
 - 5+ products/services with price ranges
 - 2+ audience personas
 - Image keywords for product photos
+- `meta.prospect_website` set in context
 - Context updated

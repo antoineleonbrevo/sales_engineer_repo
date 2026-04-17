@@ -20,6 +20,7 @@ Prepare custom Brevo demos for prospects by generating realistic data (contacts,
 | `create-orders` | Create orders linking contacts to products via API. |
 | `create-events` | Create tracking events associated with demo contacts via API. |
 | `create-custom-objects` | Create custom CRM objects and records via API. |
+| `create-email-templates` | Create 3 branded email templates using prospect colors and products via API. |
 
 ## Workflow
 
