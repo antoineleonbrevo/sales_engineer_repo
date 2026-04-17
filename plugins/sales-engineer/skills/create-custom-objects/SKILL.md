@@ -119,13 +119,15 @@ Present each object as a complete step-by-step guide. Use the format below — o
 
 **Type mapping reference**:
 
-| Brevo UI label | Use for |
-|----------------|---------|
-| Text | Names, codes, statuses, free text |
-| Number | Integers and decimals (kWh, prices, counts) |
-| Boolean | true/false flags |
-| Date | Timestamps, registration dates, expiry dates |
-| URL | Links |
+| Brevo UI label | Use for | Format / Example |
+|----------------|---------|-----------------|
+| Text | Names, codes, statuses, free text | `"Paris"` |
+| Number | Integers and decimals (kWh, prices, counts) | `450` or `25000.50` |
+| Boolean | true/false flags | `true` or `false` — JSON native, **no quotes** |
+| Date | Timestamps, registration dates, expiry dates | `"2024-06-15T10:00:00Z"` — ISO 8601 with time **mandatory**. `"2024-06-15"` alone is **rejected** |
+| URL | Links | `"https://example.com/page"` |
+
+> ⚠️ **Date vs contacts**: custom object dates use ISO 8601 (`"YYYY-MM-DDTHH:MM:SSZ"`), while contact import dates use `MM/DD/YYYY`. These are different endpoints with different formats.
 
 ### Step B — Wait for user confirmation + slug
 
