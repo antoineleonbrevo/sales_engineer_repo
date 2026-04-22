@@ -79,7 +79,22 @@ Option B — Créer de nouveaux contacts from scratch
   ✓ Idéal pour un environnement vierge ou pour repartir de zéro
 ```
 
-4. **Volumes** — present defaults, let user override
+4. **Scope & Volumes** — Always propose the full standard scope below, present it as a single block, and ask the user to confirm or adjust before proceeding. Never skip or reduce the scope without explicit user request.
+
+```
+Voici le périmètre standard de la démo — confirme ou ajuste :
+
+  ✅ Attributs de contact       — attributs métier spécifiques au prospect
+  ✅ Contacts                   — 100 contacts fictifs segmentés
+  ✅ Catégories + Produits      — catalogue produit avec images
+  ✅ Commandes (Orders)         — 200 commandes liées aux contacts
+  ✅ Événements (Events)        — 5 types max, min 20 contacts/type
+  ✅ Custom Objects             — 2 types max, 50 records/type
+  ✅ Templates email            — 3 templates brandés (welcome, promo, re-engagement)
+
+Tout est inclus par défaut. Dis-moi si tu veux retirer ou ajuster un élément.
+```
+
 5. **Use cases to demonstrate** — ask explicitly which Brevo features will be showcased. Present the menu below and ask the user to select (multiple choice):
 
 ```
