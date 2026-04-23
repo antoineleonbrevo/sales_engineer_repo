@@ -73,7 +73,7 @@ VIP 15% | Active 40% | New 25% | At-risk 20%
 - SMS: include **country code** matching the demo market (`+33` France, `+34` Spain, `+49` Germany, `+1` US)
 - WHATSAPP: same format as SMS
 - Category attributes: use **numeric value** (not label string)
-- Boolean attributes: assign `true`/`false` based on segment (VIP → IS_VIP: true, etc.)
+- Boolean attributes: assign `true`/`false` based on segment (VIP → IS_VIP: true, etc.) — **must be native JSON booleans** (no quotes, no integers). Sending `"true"` (string) or `1` (int) returns HTTP 204 but Brevo silently discards the value
 - Date attributes: use realistic past dates (registration 6-24 months ago, last purchase 1-90 days ago) — format **DD/MM/YYYY** (e.g., `"15/06/2024"`). ISO 8601 (`"2024-06-15T10:00:00Z"`) is **not accepted** by this endpoint
 - If a contact already has a value for an attribute (Mode A), keep it unless it's empty — then fill it
 
@@ -103,7 +103,7 @@ Before `POST /contacts/import`:
 | String | `"FIRSTNAME": "Jean"` |
 | Number | `"AGE": 35` |
 | Float | `"SALARY": 45000.50` |
-| Boolean | `"IS_VIP": true` |
+| Boolean | `"IS_VIP": true` — native JSON only, never `"true"` or `1` (silently ignored by Brevo) |
 | Date | `"REGISTRATION_DATE": "15/06/2024"` — format **DD/MM/YYYY** (not ISO 8601) |
 
 ### ID retrieval (`GET /contacts/lists/{id}/contacts`)
