@@ -74,7 +74,7 @@ VIP 15% | Active 40% | New 25% | At-risk 20%
 - WHATSAPP: same format as SMS
 - Category attributes: use **numeric value** (not label string)
 - Boolean attributes: assign `true`/`false` based on segment (VIP → IS_VIP: true, etc.)
-- Date attributes: use realistic past dates (registration 6-24 months ago, last purchase 1-90 days ago) — format **MM/DD/YYYY** (e.g., `"06/15/2024"`). ISO 8601 (`"2024-06-15T10:00:00Z"`) is **not accepted** by this endpoint
+- Date attributes: use realistic past dates (registration 6-24 months ago, last purchase 1-90 days ago) — format **DD/MM/YYYY** (e.g., `"15/06/2024"`). ISO 8601 (`"2024-06-15T10:00:00Z"`) is **not accepted** by this endpoint
 - If a contact already has a value for an attribute (Mode A), keep it unless it's empty — then fill it
 
 ## Pre-call Validation
@@ -104,7 +104,7 @@ Before `POST /contacts/import`:
 | Number | `"AGE": 35` |
 | Float | `"SALARY": 45000.50` |
 | Boolean | `"IS_VIP": true` |
-| Date | `"REGISTRATION_DATE": "06/15/2024"` — format **MM/DD/YYYY** (not ISO 8601) |
+| Date | `"REGISTRATION_DATE": "15/06/2024"` — format **DD/MM/YYYY** (not ISO 8601) |
 
 ### ID retrieval (`GET /contacts/lists/{id}/contacts`)
 
