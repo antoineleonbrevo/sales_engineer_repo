@@ -54,54 +54,7 @@ The `object` block uses `type` + `identifiers` — never use `entity`:
 
 ## Workflow
 
-### Step A — Declare event types in Brevo (manual, required before API calls)
-
-Custom events must be declared in Brevo before they can be used as automation triggers.
-
-Present one block per event type in the user's language:
-
-**French:**
-```
-╔══════════════════════════════════════════════════════════╗
-  EVENT À DÉCLARER : {event_name}
-  Chemin : Paramètres → Transactional → Events → + Create
-╚══════════════════════════════════════════════════════════╝
-
-① Nom de l'event : {event_name}
-② Propriétés suggérées : {prop_1}, {prop_2}, ...
-
-Usage automation : {description de l'usage — ex: "déclenche un email de renouvellement par contrat"}
-```
-
-**English:**
-```
-╔══════════════════════════════════════════════════════════╗
-  EVENT TO DECLARE: {event_name}
-  Path: Settings → Transactional → Events → + Create
-╚══════════════════════════════════════════════════════════╝
-
-① Event name: {event_name}
-② Suggested properties: {prop_1}, {prop_2}, ...
-
-Automation use: {description — e.g. "triggers one renewal email per contract record"}
-```
-
-**German:**
-```
-╔══════════════════════════════════════════════════════════╗
-  EVENT ANLEGEN: {event_name}
-  Pfad: Einstellungen → Transactional → Events → + Create
-╚══════════════════════════════════════════════════════════╝
-
-① Event-Name: {event_name}
-② Vorgeschlagene Properties: {prop_1}, {prop_2}, ...
-
-Automations-Zweck: {Beschreibung — z.B. „löst eine Verlängerungs-E-Mail pro Vertrag aus"}
-```
-
-After presenting all event types, ask the user to confirm creation before proceeding.
-
-### Step B — Define event types from object nature
+### Step A — Define event types from object nature
 
 Infer event types from the custom object's domain. Each event should reflect a meaningful state change or lifecycle milestone of the object. Use 2–4 event types max.
 
@@ -115,7 +68,7 @@ Infer event types from the custom object's domain. Each event should reflect a m
 
 Each event type should have 2–5 `event_properties` that reflect the object state (IDs, statuses, values, dates).
 
-### Step C — Create events via batch API
+### Step B — Create events via batch API
 
 Write a Python script to `/tmp/object_events.py` and run it with `python3`.
 
@@ -184,7 +137,7 @@ for i in range(0, len(events), BATCH_SIZE):
     time.sleep(0.5)
 ```
 
-### Step D — Update context
+### Step C — Update context
 
 Write `created.object_events` with event types created, object type, and record count.
 
@@ -203,7 +156,6 @@ Write `created.object_events` with event types created, object type, and record 
 |-------|------|
 | Object type exists in schema | The custom object type must be created in Brevo before sending events — otherwise `object` is silently ignored |
 | Object record exists | The referenced record (`ext_id` or `id`) must exist — if not, `object` is silently ignored (no error returned) |
-| Event declared in Brevo | Confirm Step A is done before API calls (required for automation triggers) |
 | `object.type` | Must match the exact object slug (identifier name), not the display name |
 | `object.identifiers` | Use `ext_id` OR `id` — never both |
 | `identifiers` (root) | Required — `email_id` or `contact_id` of the contact linked to the object |
