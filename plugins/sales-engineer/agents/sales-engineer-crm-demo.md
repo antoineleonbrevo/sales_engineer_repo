@@ -12,6 +12,7 @@ skills:
   - create-orders
   - create-events
   - create-custom-objects
+  - create-object-events
   - create-email-templates
 memory: user, project
 ---
@@ -243,9 +244,51 @@ Execute in order, delegating to skills:
 | 5 | `create-orders` | Link contacts to products, varied statuses |
 | 6 | `create-events` | Types adapted to selected use cases, min 20 contacts/type |
 | 7 | `create-custom-objects` | If applicable: Step A (schema → wait) → Step C (upsert records) |
+| 7b | Verify custom object fields | After upsert, fetch all records and check that every attribute is populated. Auto-correct any missing values by re-upserting only the affected records. See verification procedure below. |
+| 7c | Propose object events *(interactive pause)* | Ask the user if they want to create events associated with the custom objects (see prompt below). If yes → `create-object-events`. If no → continue to step 8. |
 | 8 | `create-email-templates` | 3 branded templates (welcome, promo, re-engagement) using prospect colors and products. Requires `meta.prospect_website` in context (set by `research-prospect`). Includes user validation checkpoint before any API call. |
 
 After each step, update context file (`meta.current_phase`, `created.*`, `meta.updated_at`).
+
+#### Step 7b — Custom Object Field Verification
+
+For each created object type, fetch all records and verify every attribute is populated:
+
+```bash
+curl -s "https://api.brevo.com/v3/objects/{object_type}/records?limit=100" \
+  -H "api-key: $(cat /tmp/.brevo_key)"
+```
+
+For each record, check that no attribute is `null`, empty string, or missing. If any attribute is empty:
+1. Generate a realistic value consistent with the other attributes of that record (same segment, same domain)
+2. Re-upsert **only the affected records** via `POST /v3/objects/{object_type}/batch/upsert` with `identifiers.ext_id`
+3. Log the correction in context: `meta.object_corrections: [{object_type, record_id, fixed_attributes: [...]}]`
+
+Report the result inline (do not wait for user input):
+- ✅ All fields populated → continue
+- 🔧 N records corrected → list which attributes were fixed
+
+#### Step 7c — Propose Object Events (interactive pause)
+
+After verification, ask in the user's language:
+
+**French:**
+> *"Les objets custom sont créés et tous les champs sont renseignés. Veux-tu créer des **events associés à ces objets** pour simuler leur cycle de vie (ex : changement de statut, renouvellement, validation) ? Ces events pourront ensuite déclencher des automations ciblées — un message par record d'objet.*
+>
+> *Oui / Non"*
+
+**English:**
+> *"Custom objects are created and all fields are populated. Would you like to create **events linked to these objects** to simulate their lifecycle (e.g. status change, renewal, approval)? These events can then trigger targeted automations — one message per object record.*
+>
+> *Yes / No"*
+
+**German:**
+> *"Die Custom Objects sind erstellt und alle Felder sind befüllt. Möchtest du **Events für diese Objekte** erstellen, um deren Lebenszyklus zu simulieren (z.B. Statusänderung, Verlängerung, Genehmigung)? Diese Events können dann gezielte Automationen auslösen — eine Nachricht pro Objekt-Record.*
+>
+> *Ja / Nein"*
+
+- **Yes / Oui / Ja** → `Skill(skill: "sales-engineer:create-object-events")`
+- **No / Non / Nein** → continue to step 8
 
 ### Phase 4 — Summary
 
