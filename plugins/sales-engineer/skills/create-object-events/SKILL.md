@@ -166,16 +166,18 @@ for i in range(0, len(events), BATCH_SIZE):
                 print("Batch {}: partial success — {}".format(i//BATCH_SIZE+1, body))
     except urllib.error.HTTPError as e:
         print("Batch {} ERROR: {} {}".format(i//BATCH_SIZE+1, e.code, e.read().decode()))
-        # Fallback: single endpoint
+        # Fallback: single endpoint — returns 204 No Content on success
         for evt in batch:
             single_req = urllib.request.Request(
                 "https://api.brevo.com/v3/events",
                 data=json.dumps(evt).encode(),
-                headers={"api-key": api_key, "content-type": "application/json"}
+                headers={"api-key": api_key, "content-type": "application/json", "accept": "application/json"}
             )
             try:
                 with urllib.request.urlopen(single_req) as r:
-                    print("  {} for {}: {}".format(evt["event_name"], evt["identifiers"].get("email_id","?"), r.status))
+                    status = r.status
+                    label = "OK" if status == 204 else str(status)
+                    print("  {} for {}: {}".format(evt["event_name"], evt["identifiers"].get("email_id","?"), label))
             except urllib.error.HTTPError as se:
                 print("  ERROR {}: {}".format(evt["event_name"], se.code))
             time.sleep(0.1)
@@ -199,22 +201,27 @@ Write `created.object_events` with event types created, object type, and record 
 
 | Check | Rule |
 |-------|------|
-| Object records exist | Custom object records must be created before events — check `created.custom_objects` |
-| Event declared in Brevo | Confirm Step A is done before API calls |
+| Object type exists in schema | The custom object type must be created in Brevo before sending events — otherwise `object` is silently ignored |
+| Object record exists | The referenced record (`ext_id` or `id`) must exist — if not, `object` is silently ignored (no error returned) |
+| Event declared in Brevo | Confirm Step A is done before API calls (required for automation triggers) |
 | `object.type` | Must match the exact object slug (identifier name), not the display name |
 | `object.identifiers` | Use `ext_id` OR `id` — never both |
 | `identifiers` (root) | Required — `email_id` or `contact_id` of the contact linked to the object |
-| Body format | Raw JSON array `[...]` — never wrapped in `{"events": [...]}` |
-| Batch size | Max 200 events per request |
+| Body format (batch) | Raw JSON array `[...]` — never wrapped in `{"events": [...]}` |
+| Batch size | Max 200 events per request, 512 KB max |
 | `event_name` | Alphanumeric + `-` + `_` only, max 255 chars |
+
+> ⚠️ **Silent failure**: if `object.type` or `object.identifiers` doesn't match an existing record, the event is still created but the object association is dropped — no error, no warning. Always verify records exist before sending events.
 
 ## Response Codes
 
-| Code | Meaning |
-|------|---------|
-| `202` | All events accepted |
-| `207` | Partial success — check response body for per-event details |
-| `400` | Validation failed — check body format and required fields |
+| Code | Endpoint | Meaning |
+|------|----------|---------|
+| `204` | `POST /v3/events` (single) | Event created successfully — no body returned |
+| `202` | `POST /v3/events/batch` | Batch accepted and queued for processing |
+| `207` | `POST /v3/events/batch` | Partial success — check response body for per-event details |
+| `400` | Both | Validation failed — check body format and required fields |
+| `401` | Both | Unauthorized — missing or invalid API key |
 
 ## Python Safety Rules
 
