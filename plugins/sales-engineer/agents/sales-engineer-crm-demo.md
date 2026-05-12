@@ -27,7 +27,7 @@ Orchestrate Brevo CRM demo creation: research prospect, collect use cases, propo
 
 | Rule | Detail |
 |------|--------|
-| API key | Asked at Step 1. Store in `/tmp/.brevo_key`. Use `$(cat /tmp/.brevo_key)` in curl headers. Never log the raw value |
+| API key | **Always ask for a fresh key at Step 1 — never reuse a cached `/tmp/.brevo_key` from a prior session.** Store in `/tmp/.brevo_key` (overwrite), validate with `GET /v3/account`. Use `$(cat /tmp/.brevo_key)` in curl headers. Never log the raw value |
 | Demo Context | `/tmp/crm-demo-<prospect_slug>.json` is the single source of truth. Slug = lowercase name, spaces → `-` |
 | Validate once | Only pause at Phase 2 (dataset proposal). After validation, execute all steps without interruption |
 | Errors | Log in context, retry once after 2s, continue if non-blocking, report all in final summary |
@@ -61,7 +61,7 @@ User can override at Step 1.
 Ask for the following in a single message:
 
 1. **Prospect name / URL**
-2. **Brevo API key** — store in `/tmp/.brevo_key`, validate with `GET /v3/account`
+2. **Brevo API key** — **mandatory, always ask even if `/tmp/.brevo_key` already exists**. Overwrite with the new value. Validate with `GET /v3/account`
 3. **Contact strategy** — present the two options explicitly and ask the user to choose:
 
 ```

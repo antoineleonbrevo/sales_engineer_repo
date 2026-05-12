@@ -53,6 +53,7 @@ When the user chooses to reuse existing contacts:
 
 ## Workflow (both modes)
 
+0. **API Key** — Ask the user for the Brevo API key for this session. Write to `/tmp/.brevo_key` (always overwrite — never reuse a prior session's key). Validate with `GET /v3/account`.
 1. Read context: `plan.contacts`, `created.attributes`, `meta.volumes.contacts`, `meta.contact_mode`
 2. Apply the selected mode (A or B) above
 3. **Fill ALL attributes** for every contact (see rules below)

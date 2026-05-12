@@ -22,6 +22,7 @@ Create events: max 5 types, 2 mandatory, each attached to min 20 contacts.
 | Mandatory | `page_view` (page_url, page_title) |
 | Optional | Up to 4, industry-specific (see below). `cart_updated` is optional and only relevant for e-commerce clients with an online shopping cart — omit for franchise, services, B2B or any client without a cart |
 | Min contacts/type | 20 |
+| **Max contacts/type** | **50** — cap each event type to 50 unique contacts maximum |
 
 ### Industry suggestions (pick up to 3)
 
@@ -61,6 +62,7 @@ curl --request POST \
 
 ## Workflow
 
+0. **API Key** — Ask the user for the Brevo API key for this session. Write to `/tmp/.brevo_key` (always overwrite — never reuse a prior session's key). Validate with `GET /v3/account`.
 1. Read context for event types, contacts, products
 2. **Use the single event endpoint** (`POST /v3/events`) via a Python script. The batch endpoint (`POST /v3/events/batch`) is documented but returns `400 — cannot unmarshal array` in practice even with a correctly formatted raw array body — do not use it. The single endpoint is reliable and returns `204` per event:
    ```python
@@ -106,11 +108,13 @@ curl --request POST \
 
    **Why Python, not bash curl?** Bash curl loops with interpolated JSON cause `"Parsing error: unmarshal json"` due to line endings and quote escaping. Python's `json.dumps()` guarantees valid JSON serialization.
 
-3. Distribution per segment:
+3. Distribution per segment — **cap each event type at 50 contacts total** across all segments:
    VIP: 8-15 events, all types, last 30 days
    Active: 5-8 events, 3-4 types, last 60 days
    New: 2-4 events, page_view + 1 optional type, last 7 days
    At-risk: 1-2 events, page_view only, 90+ days ago
+
+   > **Enforcement**: Before building the events list, group contacts by event type. If a type would exceed 50 contacts, trim to the first 50 (prioritize VIP → Active → New → At-risk).
 4. Follow funnels coherent with the industry — e.g. `page_view → {lead_event} → {conversion_event}`
 5. Optionally associate events with custom objects via `object` field
 6. Update context
