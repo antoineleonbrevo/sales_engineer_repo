@@ -19,8 +19,8 @@ Create events: max 5 types, 2 mandatory, each attached to min 20 contacts.
 | Constraint | Value |
 |-----------|-------|
 | Max types | 5 |
-| Mandatory | `page_view` (page_url, page_title), `cart_updated` (cart_value, product_id, quantity) |
-| Optional | Up to 3, industry-specific (see below) |
+| Mandatory | `page_view` (page_url, page_title) |
+| Optional | Up to 4, industry-specific (see below). `cart_updated` is optional and only relevant for e-commerce clients with an online shopping cart — omit for franchise, services, B2B or any client without a cart |
 | Min contacts/type | 20 |
 
 ### Industry suggestions (pick up to 3)
@@ -62,7 +62,7 @@ curl --request POST \
 ## Workflow
 
 1. Read context for event types, contacts, products
-2. **Preferred: use the batch endpoint** (`POST /v3/events/batch`). Send a JSON **array** of event objects — **never wrapped in an object**. Use a Python script for reliable JSON serialization:
+2. **Use the single event endpoint** (`POST /v3/events`) via a Python script. The batch endpoint (`POST /v3/events/batch`) is documented but returns `400 — cannot unmarshal array` in practice even with a correctly formatted raw array body — do not use it. The single endpoint is reliable and returns `204` per event:
    ```python
    # Write to /tmp/loyalty_events.py then execute with python3
    import urllib.request, json, time
@@ -83,60 +83,25 @@ curl --request POST \
                "browser": "Chrome"
            }
        },
-       {
-           "event_name": "cart_updated",
-           "event_date": "2025-12-10T14:35:00.000Z",
-           "identifiers": {"email_id": "client@example.com"},
-           "event_properties": {
-               "cart_value": 2499.99,
-               "product_id": "P001",
-               "quantity": 1,
-               "currency": "EUR"
-           }
-       },
        # ... more events
    ]
 
-   # Send in batches of 200
-   BATCH_SIZE = 200
-   for i in range(0, len(events), BATCH_SIZE):
-       batch = events[i:i+BATCH_SIZE]
-       data = json.dumps(batch).encode()
+   # Send one by one via single endpoint (batch endpoint is unreliable — returns 400)
+   ok = 0
+   for evt in events:
+       data = json.dumps(evt).encode()
        req = urllib.request.Request(
-           "https://api.brevo.com/v3/events/batch",
+           "https://api.brevo.com/v3/events",
            data=data,
-           headers={
-               "api-key": api_key,
-               "content-type": "application/json",
-               "accept": "application/json"
-           }
+           headers={"api-key": api_key, "content-type": "application/json"}
        )
        try:
-           with urllib.request.urlopen(req) as resp:
-               status = resp.status
-               body = resp.read().decode()
-               if status == 202:
-                   print(f"  Batch {i//BATCH_SIZE+1}: all {len(batch)} events accepted")
-               elif status == 207:
-                   print(f"  Batch {i//BATCH_SIZE+1}: partial success — check details: {body}")
+           with urllib.request.urlopen(req) as r:
+               ok += 1
        except urllib.error.HTTPError as e:
-           print(f"  Batch {i//BATCH_SIZE+1} ERROR: {e.code} {e.read().decode()}")
-           # Fallback: send events one by one via single endpoint
-           print("  Falling back to single event endpoint...")
-           for evt in batch:
-               single_data = json.dumps(evt).encode()
-               single_req = urllib.request.Request(
-                   "https://api.brevo.com/v3/events",
-                   data=single_data,
-                   headers={"api-key": api_key, "content-type": "application/json"}
-               )
-               try:
-                   with urllib.request.urlopen(single_req) as r:
-                       print(f"    {evt['event_name']} for {evt['identifiers'].get('email_id', 'N/A')}: {r.status}")
-               except urllib.error.HTTPError as se:
-                   print(f"    ERROR {evt['event_name']}: {se.code}")
-               time.sleep(0.1)
-       time.sleep(0.5)
+           print("  ERROR {} for {}: {}".format(evt["event_name"], evt["identifiers"].get("email_id","?"), e.code))
+       time.sleep(0.05)
+   print("Sent: {}/{}".format(ok, len(events)))
    ```
 
    **Why Python, not bash curl?** Bash curl loops with interpolated JSON cause `"Parsing error: unmarshal json"` due to line endings and quote escaping. Python's `json.dumps()` guarantees valid JSON serialization.
@@ -144,9 +109,9 @@ curl --request POST \
 3. Distribution per segment:
    VIP: 8-15 events, all types, last 30 days
    Active: 5-8 events, 3-4 types, last 60 days
-   New: 2-4 events, page_view + cart_updated, last 7 days
+   New: 2-4 events, page_view + 1 optional type, last 7 days
    At-risk: 1-2 events, page_view only, 90+ days ago
-4. Follow funnels: `page_view → cart_updated → {event_3} → ...`
+4. Follow funnels coherent with the industry — e.g. `page_view → {lead_event} → {conversion_event}`
 5. Optionally associate events with custom objects via `object` field
 6. Update context
 
@@ -180,16 +145,9 @@ curl --request POST \
 | `400` | All events failed validation |
 | `401` | Unauthorized — missing or invalid API key |
 
-## Fallback Strategy
+## Batch Endpoint — Do Not Use
 
-If the batch endpoint returns `400`, first verify the body is a raw JSON array (not wrapped). If the format is correct and the error persists, fall back to the **single event endpoint**:
-
-- **Single endpoint**: `POST /v3/events`
-- Sends one event per call
-- Returns `204 No Content` on success
-- Slower but isolates which individual events fail
-
-The Python script above includes automatic fallback: if a batch call returns an error, it retries each event individually via the single endpoint.
+`POST /v3/events/batch` is documented in the Brevo API but returns `400 — "cannot unmarshal array into Go value of type main.unifiedEventsRequest"` even when the body is a correctly formatted raw JSON array. This is a known Brevo API issue. Always use `POST /v3/events` (single endpoint) instead.
 
 ## Python Safety Rules
 
@@ -202,8 +160,8 @@ The Python script above includes automatic fallback: if a batch call returns an 
 
 ## Reference
 
-- **Preferred**: `POST /v3/events/batch` — up to 200 events per call, 512 KB max
-- **Fallback**: `POST /v3/events` — single event per call
+- **Use**: `POST /v3/events` — single event per call, returns `204 No Content`
+- **Avoid**: `POST /v3/events/batch` — returns `400` in practice even with correct format
 - `event_name`: alphanumeric + `-` + `_` only, max 255 chars
 - `identifiers`: use `email_id` (preferred) or `contact_id` — must match an existing contact
 - `event_properties`: 50 KB max per event

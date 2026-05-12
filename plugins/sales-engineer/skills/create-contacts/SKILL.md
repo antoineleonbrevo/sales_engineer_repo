@@ -70,6 +70,7 @@ VIP 15% | Active 40% | New 25% | At-risk 20%
 - **Before importing**: fetch all existing attributes with `GET /v3/contacts/attributes` to get the full list of attribute names and types
 - **Fill every attribute** in `existing_attributes` AND every newly created attribute — no field left empty
 - Generate realistic, coherent values per contact (name, city, age, segment all consistent)
+- **Email addresses must contain ASCII characters only** — strip accented characters from first/last names before building the email (e.g. `Anaïs` → `anais`, `Amélie` → `amelie`). Use `unicodedata.normalize('NFD', name).encode('ascii', 'ignore').decode().lower()`. Brevo silently skips contacts with non-ASCII emails, causing invisible data loss
 - SMS: include **country code** matching the demo market (`+33` France, `+34` Spain, `+49` Germany, `+1` US)
 - WHATSAPP: same format as SMS
 - Category attributes: use **numeric value** (not label string)
@@ -109,6 +110,7 @@ Before `POST /contacts/import`:
 ### ID retrieval (`GET /contacts/lists/{id}/contacts`)
 
 - `limit` max 500, use `offset` pagination if volume > 500
+- **Wait for ALL import processIds to complete** before reading the list — if contacts were imported in multiple batches, poll each processId via `GET /v3/processes/{id}` until `"status": "completed"`. Reading the list before all batches finish returns a partial count with no error
 
 ## Response
 
