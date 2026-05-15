@@ -12,7 +12,7 @@ Create tasks in Brevo CRM Sales, linked to companies and deals created in previo
 
 ## Demo Context
 
-- **Read**: `plan.tasks`, `created.companies` (brevo_id, name), `created.deals` (brevo_id, name), `meta.volumes.tasks` | **Write**: `created.tasks`
+- **Read**: `plan.tasks`, `plan.contacts`, `created.companies` (brevo_id, name), `created.deals` (brevo_id, name), `created.contacts` (brevo_id, email), `meta.volumes.tasks` | **Write**: `created.tasks`
 
 ## Workflow
 
@@ -52,13 +52,23 @@ If the account has no custom types, Brevo returns the default set automatically.
 
 Read `/tmp/crm-sales-demo-<prospect_slug>.json`:
 - `plan.tasks` — array of planned tasks
+- `plan.contacts` — array of planned contacts, each with a `company` field
 - `created.companies` — array with `brevo_id` and `name`
 - `created.deals` — array with `brevo_id` and `name`
+- `created.contacts` — array with `brevo_id` and `email`
 
 Build lookup maps:
 ```python
 company_map = {c["name"]: c["brevo_id"] for c in context["created"]["companies"]}
 deal_map    = {d["name"]: d["brevo_id"]  for d in context["created"]["deals"]}
+
+# Map company name → list of contact brevo_ids
+plan_contact_company = {pc["email"]: pc["company"] for pc in context["plan"]["contacts"]}
+contacts_by_company = {}
+for c in context["created"]["contacts"]:
+    company = plan_contact_company.get(c["email"])
+    if company:
+        contacts_by_company.setdefault(company, []).append(c["brevo_id"])
 ```
 
 ### Step 3 — Create tasks
@@ -78,9 +88,12 @@ curl -s -X POST "https://api.brevo.com/v3/crm/tasks" \
     "done": false,
     "assignToId": "marie.dupont@prospect.com",
     "companiesIds": ["abc123def456"],
-    "dealsIds": ["deal_xyz789"]
+    "dealsIds": ["deal_xyz789"],
+    "contactsIds": [123, 456]
   }'
 ```
+
+Resolve `contactsIds` from `contacts_by_company[company_name]` for **Call** and **Meeting** type tasks only. For Email, Todo, LinkedIn — omit `contactsIds`. If no contacts are mapped to the company, omit the field.
 
 **Response 201:**
 ```json

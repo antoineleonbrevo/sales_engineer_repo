@@ -12,7 +12,7 @@ Create deals in Brevo CRM Sales, place them in the correct pipeline stage, and l
 
 ## Demo Context
 
-- **Read**: `plan.deals`, `created.companies` (brevo_id, name), `meta.volumes.deals` | **Write**: `created.deals`
+- **Read**: `plan.deals`, `plan.contacts`, `created.companies` (brevo_id, name), `created.contacts` (brevo_id, email), `meta.volumes.deals` | **Write**: `created.deals`
 
 ## Workflow
 
@@ -87,12 +87,22 @@ Parse each attribute's `internalName` and `attributeTypeName`. Common system att
 
 Read `/tmp/crm-sales-demo-<prospect_slug>.json`:
 - `plan.deals` — array of planned deals
+- `plan.contacts` — array of planned contacts, each with a `company` field
 - `created.companies` — array with `brevo_id` and `name` for each created company
+- `created.contacts` — array with `brevo_id` and `email` for each created contact
 
-Build a name→ID lookup map for companies:
+Build lookup maps:
 
 ```python
 company_map = {c["name"]: c["brevo_id"] for c in context["created"]["companies"]}
+
+# Map company name → list of contact brevo_ids
+plan_contact_company = {pc["email"]: pc["company"] for pc in context["plan"]["contacts"]}
+contacts_by_company = {}
+for c in context["created"]["contacts"]:
+    company = plan_contact_company.get(c["email"])
+    if company:
+        contacts_by_company.setdefault(company, []).append(c["brevo_id"])
 ```
 
 ### Step 4 — Create deals
@@ -112,9 +122,12 @@ curl -s -X POST "https://api.brevo.com/v3/crm/deals" \
       "amount": 45000,
       "close_date": "2026-06-30T00:00:00.000Z"
     },
-    "linkedCompaniesIds": ["abc123def456"]
+    "linkedCompaniesIds": ["abc123def456"],
+    "linkedContactsIds": [123, 456]
   }'
 ```
+
+Resolve `linkedContactsIds` from `contacts_by_company[company_name]` built in Step 3. If no contacts are mapped to that company, omit the field (do not send an empty array).
 
 **Response 201:**
 ```json

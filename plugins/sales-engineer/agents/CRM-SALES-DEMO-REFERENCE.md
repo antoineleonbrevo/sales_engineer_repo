@@ -15,6 +15,7 @@ Path: `/tmp/crm-sales-demo-<prospect_slug>.json`
     "current_phase": "init",
     "brevo_api_key_set": false,
     "volumes": {
+      "contacts": 60,
       "companies": 20,
       "deals": 30,
       "tasks": 20,
@@ -30,12 +31,17 @@ Path: `/tmp/crm-sales-demo-<prospect_slug>.json`
     "notes": ""
   },
   "plan": {
+    "attributes": [],
+    "contacts": [],
     "companies": [],
     "deals": [],
     "tasks": [],
     "notes": []
   },
   "created": {
+    "attributes": [],
+    "contact_list": { "name": "", "id": null },
+    "contacts": [],
     "companies": [],
     "deals": [],
     "tasks": [],
@@ -44,6 +50,36 @@ Path: `/tmp/crm-sales-demo-<prospect_slug>.json`
   "errors": []
 }
 ```
+
+---
+
+## Contact Object Schema
+
+### Plan entry
+
+```json
+{
+  "firstname": "Jean",
+  "lastname": "Dupont",
+  "email": "jean.dupont@acme.com",
+  "job_title": "VP Sales",
+  "company": "Acme Corp",
+  "segment": "VIP"
+}
+```
+
+### Created entry (after create-contacts skill)
+
+```json
+{
+  "brevo_id": 123,
+  "email": "jean.dupont@acme.com",
+  "segment": "VIP",
+  "status": "active"
+}
+```
+
+> The `company` field is stored only in `plan.contacts`. Skills join on `email` to resolve the company association at runtime.
 
 ---
 

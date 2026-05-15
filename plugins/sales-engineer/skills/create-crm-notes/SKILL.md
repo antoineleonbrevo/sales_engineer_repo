@@ -12,7 +12,7 @@ Create notes in Brevo CRM Sales to simulate a realistic activity log, linked to 
 
 ## Demo Context
 
-- **Read**: `plan.notes`, `created.companies` (brevo_id, name), `created.deals` (brevo_id, name), `meta.volumes.notes` | **Write**: `created.notes`
+- **Read**: `plan.notes`, `plan.contacts`, `created.companies` (brevo_id, name), `created.deals` (brevo_id, name), `created.contacts` (brevo_id, email), `meta.volumes.notes` | **Write**: `created.notes`
 
 ## Workflow
 
@@ -28,13 +28,30 @@ curl -s "https://api.brevo.com/v3/account" -H "api-key: $(cat /tmp/.brevo_key)"
 
 Read `/tmp/crm-sales-demo-<prospect_slug>.json`:
 - `plan.notes` — array of planned notes
+- `plan.contacts` — array of planned contacts, each with `email`, `firstname`, `lastname`, `company`
 - `created.companies` — array with `brevo_id` and `name`
 - `created.deals` — array with `brevo_id` and `name`
+- `created.contacts` — array with `brevo_id` and `email`
 
 Build lookup maps:
 ```python
 company_map = {c["name"]: c["brevo_id"] for c in context["created"]["companies"]}
 deal_map    = {d["name"]: d["brevo_id"]  for d in context["created"]["deals"]}
+
+# Map company name → list of contact brevo_ids
+plan_contact_company = {pc["email"]: pc["company"] for pc in context["plan"]["contacts"]}
+contacts_by_company = {}
+for c in context["created"]["contacts"]:
+    company = plan_contact_company.get(c["email"])
+    if company:
+        contacts_by_company.setdefault(company, []).append(c["brevo_id"])
+
+# Also build a name→id map to reference specific contacts in note text
+plan_contact_by_name = {
+    "{}.{}".format(pc["firstname"].lower(), pc["lastname"].lower()): pc["email"]
+    for pc in context["plan"]["contacts"]
+}
+email_to_brevo_id = {c["email"]: c["brevo_id"] for c in context["created"]["contacts"]}
 ```
 
 ### Step 2 — Create notes
@@ -46,11 +63,14 @@ curl -s -X POST "https://api.brevo.com/v3/crm/notes" \
   -H "api-key: $(cat /tmp/.brevo_key)" \
   -H "content-type: application/json" \
   -d '{
-    "text": "<p>Appel de découverte effectué avec le DG.</p><p>Le client est <b>très intéressé</b> par l'\''offre Enterprise — budget confirmé pour Q3.</p><p>Prochain step : envoi de la proposition commerciale.</p>",
+    "text": "<p>Appel de découverte effectué avec <b>Jean Dupont</b> (VP Sales).</p><p>Le client est <b>très intéressé</b> par l'\''offre Enterprise — budget confirmé pour Q3.</p><p>Prochain step : envoi de la proposition commerciale.</p>",
     "companyIds": ["abc123def456"],
-    "dealIds": ["deal_xyz789"]
+    "dealIds": ["deal_xyz789"],
+    "contactIds": [123]
   }'
 ```
+
+Resolve `contactIds` from `contacts_by_company[company_name]` for notes linked to a company. When the note text names a specific contact (call summary, meeting notes styles), include only that contact's ID. For account-level notes not referencing a specific person, omit `contactIds`. If no contacts are mapped to the company, omit the field.
 
 **Response 200:**
 ```json

@@ -12,7 +12,7 @@ Create companies in Brevo CRM Sales, fill all available attributes, and store Br
 
 ## Demo Context
 
-- **Read**: `plan.companies`, `meta.volumes.companies`, `meta.prospect_name` | **Write**: `created.companies`
+- **Read**: `plan.companies`, `plan.contacts`, `created.contacts` (brevo_id, email), `meta.volumes.companies`, `meta.prospect_name` | **Write**: `created.companies`
 
 ## Workflow
 
@@ -39,7 +39,20 @@ Parse the response to get the list of `internalName` + `attributeTypeName` for e
 
 Read `/tmp/crm-sales-demo-<prospect_slug>.json`:
 - `plan.companies` — array of planned companies with their attributes
+- `plan.contacts` — array of planned contacts, each with a `company` field
+- `created.contacts` — array of created contacts with `brevo_id` and `email`
 - `meta.volumes.companies` — target count
+
+Build the contacts-by-company lookup map (used in Step 4):
+
+```python
+plan_contact_company = {pc["email"]: pc["company"] for pc in context["plan"]["contacts"]}
+contacts_by_company = {}
+for c in context["created"]["contacts"]:
+    company = plan_contact_company.get(c["email"])
+    if company:
+        contacts_by_company.setdefault(company, []).append(c["brevo_id"])
+```
 
 ### Step 3 — Create companies
 
@@ -88,9 +101,9 @@ Distribute companies across sizes:
 
 Distribute across 3–4 fictional sales reps for variety.
 
-### Step 4 — Link contacts (optional)
+### Step 4 — Link contacts to companies
 
-If `created.contacts` exists in the context and contains contacts with `brevo_id`, link relevant contacts to their company using the incremental link endpoint:
+For each created company, look up its contacts using the `contacts_by_company` map built in Step 2 and link them via the incremental endpoint. This step is **mandatory** when `created.contacts` is non-empty.
 
 ```bash
 curl -s -X PATCH "https://api.brevo.com/v3/companies/link-unlink/{company_brevo_id}" \
@@ -101,9 +114,9 @@ curl -s -X PATCH "https://api.brevo.com/v3/companies/link-unlink/{company_brevo_
   }'
 ```
 
-> Use `link-unlink` (not `PATCH /companies/{id}`) to avoid overwriting existing associations.
+> Use `link-unlink` (not `PATCH /companies/{id}`) — it is incremental and never overwrites existing associations.
 
-Match contacts to companies by `segment` or by name coherence. Assign 1–5 contacts per company.
+If a company has no matching contacts in the map (e.g. a company with no planned contacts), skip silently — do not fail.
 
 ### Step 5 — Update context
 

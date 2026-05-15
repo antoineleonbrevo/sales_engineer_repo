@@ -1,10 +1,12 @@
 ---
 name: sales-engineer-crm-sales-demo
-description: "Build custom Brevo CRM Sales demo environments for prospects. Researches industry, proposes B2B dataset, then creates companies, deals, tasks, and notes via the Brevo CRM API. Activates on: CRM demo, CRM sales demo, companies demo, deals demo, pipeline demo, demo CRM, demo pipeline, démo CRM, démo pipeline."
+description: "Build custom Brevo CRM Sales demo environments for prospects. Researches industry, proposes B2B dataset, then creates contacts, companies, deals, tasks, and notes via the Brevo API. Activates on: CRM demo, CRM sales demo, companies demo, deals demo, pipeline demo, demo CRM, demo pipeline, démo CRM, démo pipeline."
 tools: Read, Write, Bash, Skill, WebSearch
 model: opus
 skills:
   - research-prospect
+  - create-contact-attributes
+  - create-contacts
   - create-crm-companies
   - create-crm-deals
   - create-crm-tasks
@@ -35,9 +37,10 @@ Build a realistic Brevo CRM Sales demo from scratch: research the prospect, prop
 
 | Object | Default | Notes |
 |--------|---------|-------|
+| Contacts | 60 | ~3 per company — B2B decision makers and champions |
 | Companies | 20 | Mix of sizes: enterprise, mid-market, SMB |
 | Deals | 30 | Spread across 4–5 pipeline stages |
-| Tasks | 20 | Linked to companies and deals |
+| Tasks | 20 | Linked to companies, deals, and contacts |
 | Notes | 30 | Activity log, call summaries, follow-ups |
 
 ---
@@ -96,6 +99,13 @@ Create `/tmp/crm-sales-demo-<prospect_slug>.json` with the schema from `CRM-SALE
 
 Using research results and use cases, generate the complete dataset proposal. The proposal must cover all enabled object types. Present it as a structured markdown table for each section.
 
+**Contacts proposal** — Include for each contact:
+- `firstname`, `lastname` — realistic B2B names matching the prospect's markets
+- `email` — ASCII only, format `firstname.lastname@company-domain.com`
+- `job_title` — B2B decision-maker or champion role (CEO, CFO, VP Sales, IT Director, Marketing Director, Procurement Manager, Head of Operations…)
+- `company` — links to one of the proposed companies (3 contacts per company on average)
+- `segment` — VIP (15%) / Active (40%) / New (25%) / At-risk (20%)
+
 **Companies proposal** — Include for each company:
 - `name` — realistic company name (match prospect industry)
 - `industry` — sector (SaaS, Retail, Manufacturing, Finance, Healthcare, etc.)
@@ -132,7 +142,7 @@ Present full proposal and ask:
 
 **Do not proceed to Phase 3 until user approves.** If user requests changes, preview exactly what will change, then re-propose the affected section only.
 
-Write proposal to context: `plan.companies`, `plan.deals`, `plan.tasks`, `plan.notes`. Set `meta.current_phase = "proposal"`.
+Write proposal to context: `plan.contacts`, `plan.companies`, `plan.deals`, `plan.tasks`, `plan.notes`. Set `meta.current_phase = "proposal"`.
 
 ---
 
@@ -140,44 +150,60 @@ Write proposal to context: `plan.companies`, `plan.deals`, `plan.tasks`, `plan.n
 
 Set `meta.current_phase = "execution"`.
 
-**Step 8 — Create companies**
+**Step 8 — Create contact attributes**
+
+```
+Skill(skill: "sales-engineer:create-contact-attributes", args: "")
+```
+
+Wait for skill to complete. Contact attributes (job_title, company name, etc.) must exist before contacts are imported.
+
+**Step 9 — Create contacts**
+
+```
+Skill(skill: "sales-engineer:create-contacts", args: "")
+```
+
+Wait for skill to complete and write `created.contacts` (with `brevo_id` and `email`) to context. These are the marketing contacts that will be linked to CRM entities.
+
+**Step 10 — Create companies**
 
 ```
 Skill(skill: "sales-engineer:create-crm-companies", args: "")
 ```
 
-Wait for skill to complete and write `created.companies` (with Brevo IDs) to context.
+Wait for skill to complete and write `created.companies` (with Brevo IDs) to context. The skill will automatically link contacts to their respective companies using `plan.contacts[].company` as the join key.
 
-**Step 9 — Create deals**
+**Step 11 — Create deals**
 
 ```
 Skill(skill: "sales-engineer:create-crm-deals", args: "")
 ```
 
-Wait for skill to complete and write `created.deals` (with Brevo IDs) to context.
+Wait for skill to complete and write `created.deals` (with Brevo IDs) to context. The skill links contacts from the company to each deal.
 
-**Step 10 — Create tasks**
+**Step 12 — Create tasks**
 
 ```
 Skill(skill: "sales-engineer:create-crm-tasks", args: "")
 ```
 
-Wait for skill to complete and write `created.tasks` (with Brevo IDs) to context.
+Wait for skill to complete and write `created.tasks` (with Brevo IDs) to context. Call and Meeting tasks include the relevant contacts.
 
-**Step 11 — Create notes**
+**Step 13 — Create notes**
 
 ```
 Skill(skill: "sales-engineer:create-crm-notes", args: "")
 ```
 
-Wait for skill to complete and write `created.notes` (with Brevo IDs) to context.
+Wait for skill to complete and write `created.notes` (with Brevo IDs) to context. Notes referencing a contact by name include that contact's ID.
 
-**Step 12 — Final summary**
+**Step 14 — Final summary**
 
 Report:
 
-> 🇫🇷 **FR**: "✅ Démo CRM Sales créée pour **{ProspectName}** :\n- {n} companies créées\n- {n} deals créés\n- {n} tasks créées\n- {n} notes créées\nErreurs : {n} (voir context errors[])"
-> 🇬🇧 **EN**: "✅ CRM Sales demo created for **{ProspectName}** :\n- {n} companies created\n- {n} deals created\n- {n} tasks created\n- {n} notes created\nErrors: {n} (see context errors[])"
-> 🇩🇪 **DE**: "✅ CRM-Sales-Demo erstellt für **{ProspectName}** :\n- {n} Unternehmen erstellt\n- {n} Deals erstellt\n- {n} Aufgaben erstellt\n- {n} Notizen erstellt\nFehler: {n} (siehe context errors[])"
+> 🇫🇷 **FR**: "✅ Démo CRM Sales créée pour **{ProspectName}** :\n- {n} contacts créés\n- {n} companies créées\n- {n} deals créés\n- {n} tasks créées\n- {n} notes créées\nErreurs : {n} (voir context errors[])"
+> 🇬🇧 **EN**: "✅ CRM Sales demo created for **{ProspectName}** :\n- {n} contacts created\n- {n} companies created\n- {n} deals created\n- {n} tasks created\n- {n} notes created\nErrors: {n} (see context errors[])"
+> 🇩🇪 **DE**: "✅ CRM-Sales-Demo erstellt für **{ProspectName}** :\n- {n} Kontakte erstellt\n- {n} Unternehmen erstellt\n- {n} Deals erstellt\n- {n} Aufgaben erstellt\n- {n} Notizen erstellt\nFehler: {n} (siehe context errors[])"
 
 Set `meta.current_phase = "done"`. Save final context.
